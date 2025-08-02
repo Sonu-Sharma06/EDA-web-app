@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EDA Results</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet"/>
+ <style>
+  :root {
+  --primary-color: #4f46e5;        
+  --accent-color: #22c55e;        
+  --text-color: #111827;          
+  --background-color: #f3f4f6;     
+  --white: #ffffff;
+  --border-color: #d1d5db;         
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.06); 
+}
+
+  body {
+    background: var(--background-color);
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 20px;
+    color: var(--text-color);
+  }
+
+  .eda-container {
+    max-width: 960px;
+    margin: auto;
+    background: var(--white);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease-in-out;
+  }
+
+  h2, h3 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+
+  .eda-summary {
+    max-height: 320px;
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    border-radius: 12px;
+    background: var(--white);
+    margin-bottom: 32px;
+    font-family: monospace;
+    font-size: 14px;
+  }
+
+  form {
+    margin-top: 30px;
+  }
+
+  label {
+    font-weight: 500;
+    display: block;
+    margin: 12px 0 6px;
+  }
+
+  input[type="color"] {
+    margin-left: 10px;
+    border: none;
+    width: 50px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: inset 0 0 3px rgba(0,0,0,0.1);
+  }
+
+  .form-section {
+    margin-bottom: 40px;
+    padding: 24px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--white);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  button[type="submit"] {
+    background: var(--primary-color);
+    color: var(--white);
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s;
+  }
+
+  button[type="submit"]:hover {
+    background: #1e40af;
+  }
+
+  .btn-download {
+    display: inline-block;
+    margin-top: 20px;
+    background: var(--accent-color);
+    color: var(--white);
+    padding: 12px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background 0.3s;
+  }
+
+  .btn-download:hover {
+    background: #059669;
+  }
+
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .checkbox-group label {
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .adjusting {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 15px;
+    color: #6b7280;
+  }
+</style>
+
+</head>
+<body>
+
+ <div class="eda-container">
+    <h2 class="text-center">📊 Exploratory Data Analysis</h2>
+    <div class="eda-summary">
+      {{ summary | safe }}
+    </div>
+
+  {% if not show %}
+  <form method="POST" action="{{ url_for('visualization', filename=filename) }}">
+      
+      
+       <!-- Data Cleaning Options -->
+      <div class="form-section">
+        <h3 class="adjusting">Data Cleaning Options</h3>
+
+        <!-- Missing values -->
+         <div class="form-section">
+        <label>Handle Missing Values:</label>
+        <select name="missing_values_strategy" class="form-select mb-3">
+          <option value="none">No action</option>
+          <option value="drop">Drop rows with missing values</option>
+          <option value="mean">Fill numeric with mean</option>
+          <option value="median">Fill numeric with median</option>
+          <option value="zero">Fill numeric with zero</option>
+          <option value="mode">Fill categorical with mode</option>
+          <option value="unknown">Fill categorical with 'Unknown'</option>
+        </select>
+        </div>
+
+        <!-- Remove Duplicates -->
+       <div class="form-section">
+         <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" name="remove_duplicates">
+          <label class="form-check-label">Remove duplicate rows</label>
+         </div>
+       </div> 
+      
+
+        <!-- Drop Columns -->
+         <div class="form-section">
+        <label>Drop Columns:</label>
+        <select name="drop_columns" multiple class="form-select mb-1" size="5">
+          {% for col in all_columns %}
+            <option value="{{ col }}">{{ col }}</option>
+          {% endfor %}
+        </select>
+        <small class="text-muted">Hold CTRL (Windows) or CMD (Mac) to select multiple.</small>
+        </div>
+
+      <br><br>
+      
+      <!-- Heatmap -->
+      <div class="form-section">
+        <h3 class="adjusting">Data Visualizations</h3>
+        <h4>Correlation Heatmap</h4>
+        <label>Select Color Palette:</label>
+        <select name="heatmap_color" class="form-select w-auto d-inline-block ms-2">
+          <option value="coolwarm">Coolwarm</option>
+          <option value="viridis">Viridis</option>
+          <option value="plasma">Plasma</option>
+          <option value="cividis">Cividis</option>
+        </select>
+      </div>
+
+   <div class="form-section">
+       <h4>Histogram</h4>
+       <label>Select Max 2 Columns:</label>
+       <select name="hist_columns" class="form-select" multiple size="4">
+         {% for col in numeric_cols %}
+           <option value="{{ col }}">{{ col }}</option>
+         {% endfor %}
+       </select>
+       <small class="text-muted">
+        Hold CTRL (Windows) or CMD (Mac) to select multiple.
+       </small>
+       <br><br>
+       <label>Select Color:</label>
+       <input type="color" name="hist_color" value="r">
+  </div>
+
+      <!-- Countplot -->
+    <div class="form-section">
+        <h4>Countplot</h4>
+        <label>Select Columns:</label>
+        <select name="count_columns" class="form-select" size="4">
+          {% for col in categorical_cols %}
+            <option value="{{ col }}">{{ col }}</option>
+          {% endfor %}
+        </select>
+        
+        <br><br>
+        <label>Select Color:</label>
+        <input type="color" name="count_color" value="g">
+
+        <br><br>
+        <label>Select Hue Column (Optional, Max 1):</label>
+        <select name="hue_column" class="form-select w-auto">
+          <option value="">None</option>
+          {% for col in categorical_cols %}
+            <option value="{{ col }}">{{ col }}</option>
+          {% endfor %}
+        </select>
+    </div>
+
+    <div class="text-center">
+        <button type="submit">Generate Plots</button>
+    </div>
+    
+  </form>
+{% endif %}
+
+ {% if plots %}
+      <hr>
+      <h3 class="adjusting">Generated Visualizations</h3>
+    <div class="row">
+    {% for plot in plots %}
+      <div class="col-md-6 mb-4">
+        <img src="{{ url_for('static', filename=plot) }}" alt="{{ plot }}" class="img-fluid rounded shadow">
+      </div>
+    {% endfor %}
+    </div>
+    
+  {% endif %}
+  
+{% if not check %}
+    
+    <div class="text-center">
+        <a href="{{ url_for('download_report', cleaned_path=cleaned_path) }}" class="btn-download"> Download Cleaned Data</a>
+    </div>
+
+{% endif %}
+
+</div>
+  
+</body>
+</html>
+
