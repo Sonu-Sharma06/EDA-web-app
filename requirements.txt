@@ -1,0 +1,6 @@
+flask
+pandas
+matplotlib
+plotly
+gunicorn
+werkzeug
