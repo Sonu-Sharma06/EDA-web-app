@@ -117,7 +117,7 @@ def visualization(filename):
                plots=plot_filenames)
        
      
-@app.route('/download/<cleaned_path>')
+@app.route('/download/<path:cleaned_path>')
 def download_report(cleaned_path):
     cleaned_filepath= os.path.join(app.config['UPLOAD_FOLDER'],cleaned_path)
     df = pd.read_csv(cleaned_filepath)
