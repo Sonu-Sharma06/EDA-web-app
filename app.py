@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 import os
+#from io import StringIO
+from io import BytesIO
 import pandas as pd
 from eda import perform_eda,clean_data
 from flask import send_file
@@ -120,8 +122,16 @@ def download_report(cleaned_path):
     df = pd.read_csv(cleaned_path)
     
     #cleaned_filepath = os.path.join(app.config['UPLOAD_FOLDER'],cleaned_path)
-    df.to_csv(cleaned_path,index=False)
-    return send_file(cleaned_path,as_attachment=True)
+
+    # Save to memory buffer instead of disk
+    buffer = BytesIO()
+    df.to_csv(buffer, index=False)
+    buffer.seek(0)
+    
+    # Return as downloadable file
+    return send_file(buffer, as_attachment=True,
+                     download_name=cleaned_path,
+                     mimetype='text/csv')
 
 if __name__ == '__main__':
     app.run(debug=True)
