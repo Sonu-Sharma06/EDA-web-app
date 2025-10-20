@@ -119,8 +119,8 @@ def visualization(filename):
      
 @app.route('/download/<cleaned_path>')
 def download_report(cleaned_path):
-    #filepath = os.path.join(app.config['UPLOAD_FOLDER'],cleaned_path)
-    df = pd.read_csv(cleaned_path)
+    cleaned_filepath= os.path.join(app.config['UPLOAD_FOLDER'],cleaned_path)
+    df = pd.read_csv(cleaned_filepath)
     
     #cleaned_filepath = os.path.join(app.config['UPLOAD_FOLDER'],cleaned_path)
 
@@ -131,7 +131,7 @@ def download_report(cleaned_path):
     
     # Return as downloadable file
     return send_file(buffer, as_attachment=True,
-                     download_name=cleaned_path,
+                     download_name=cleaned_filepath,
                      mimetype='text/csv')
 
 if __name__ == '__main__':
